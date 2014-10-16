@@ -7,6 +7,6 @@
 
 [solFull,cholFac,cholFac2] = storFull(coMatrix,b);
 % [pacVector,cholPac,solPac] = storPac(coMatrix,b);
-% [banMatrix,cholBan,solBan] = storBan(coMatrix,b);
+[banMatrix,cholBan,solBan] = storBan(coMatrix,b);
 % [sparMatrix,cholSpar] = storSpar(coMatrix);
 
