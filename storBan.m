@@ -6,13 +6,14 @@ function [banMatrix,cholBan,sol] = storBan(coMatrix,b)
 % 4. Computes solution from banded cholesky
 
 % Paramters
-sol = b;
-
+sol = b';
+n = 33;
 
 %% RCM Node Re-ordering
 permRCM = symrcm(coMatrix);
 
 rcmReOrder = triu(coMatrix(permRCM,permRCM)); % Reordered coefficient matrix
+% rcmReOrder = triu(coMatrix); % Reordered coefficient matrix
 sol = b(permRCM); % Reordered b vector
 
 figure(1)
@@ -57,36 +58,44 @@ for i = 1:33
 end
 
 %% Forward Subsitution
-
 for i = 1:n
     
-    if i ~= 1 && i < 7
-        sol(i) = sol(i) - dot(sol(1:i-1),cholBan(6:-1:8-i,i));   
-    elseif i ~= 1
-        sol(i) = sol(i) - dot(sol(i-6:i-1),cholBan(6:-1:1));
+    if i ~= 1 && i <= 7
+        i
+        sol(i) = sol(i) - dot(sol(1:(i-1)),cholBan(1:(i-1),i));
     end
-        
+    
+    if i ~= 1 && i > 7
+        sol((i-6):(i-1))
+        cholBan(7:-1:2)
+        sol(i) = sol(i) - dot(sol((i-6):(i-1)),cholBan(1:6,i));
+
+    end
     sol(i) = sol(i)/cholBan(7,i);
 end
 
-sol(permRCM);
+
 %% Backward Subtitution
 
 for i = n:-1:1
-    if i < 27
-        j = 33:-1:33-i
+    if i > 27 && i ~=33
+        itt = 1; %needed not to override i
+        for j = 6:-1:(7-n+i)
+            sol(i) = sol(i) - sol(i+itt)*cholBan(j,i+itt);
+            itt = itt+1;
+        end
     end
+    
+    if i <= 27
+        itt = 1;
+        for j = 6:-1:1
+            sol(i) = sol(i) - sol(i+itt)*cholBan(j,i+itt);
+            itt = itt+1;
+        end
+    end
+        
+    sol(i) = sol(i)/cholBan(7,i)
 end
 
-    
-%% Cholesky reconstruction (for testing purposes only)
-% reCon = zeros(33,33);
-% 
-% for i = 1:33
-%     reCon(i,i) = cholBan(7,i)
-% end
-% 
-% % reCon = reCon(permRCM,permRCM)
-        
-
+sol = sol(permRCM');
 
