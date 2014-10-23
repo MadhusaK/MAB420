@@ -97,5 +97,5 @@ for i = n:-1:1
     sol(i) = sol(i)/cholBan(7,i)
 end
 
-sol = sol(permRCM');
+sol(permRCM) = sol;
 
