@@ -6,19 +6,28 @@ function [sparMatrix,cholSpar,solSpar] = storSpar(coMatrix,b)
 % 4. Computes solution from banded cholesky
 %% Parameters
 n = 33;
-solSpar = b;
-coMatrix = triu(coMatrix);
+
+
 %% AMD Node reordering
+
 
 permAMD = symamd(coMatrix);
 
-amdReOrder = triu(coMatrix(permAMD,permAMD));
+amdReOrder = coMatrix(permAMD,permAMD);
+coMatrix = triu(coMatrix);
 
-spy(amdReOrder)
+amdReOrder = triu(amdReOrder);
+
 
 sparMatrix = sparse(amdReOrder);
+solSpar = b(permAMD);
 
 cholSpar = sparMatrix;
+
+
+
+
+% Cholesky Sparse
 tic;
 for i = 1:n
     if i ~= 1
@@ -26,7 +35,8 @@ for i = 1:n
     end
     cholSpar(i,i:n) = cholSpar(i,i:n)/sqrt(cholSpar(i,i));
 end
-toc;
+time = toc;
+fprintf('Sparse Storage - Cholesky:             %10.10fms \n', time)
 
 % cholSpar = full(cholSpar);
 
@@ -51,3 +61,15 @@ for i = n:-1:1
     
     solSpar(i) = solSpar(i)/cholSpar(i,i);
 end
+time = toc;
+fprintf('Sparse Storage - Solution Runtime:     %10.10fms \n', time)
+
+solSpar(permAMD) = solSpar;
+
+figure
+subplot(1,2,1)
+spy(sparMatrix)
+title('Coefficient Matrix')
+subplot(1,2,2)
+spy(cholSpar)
+title('Cholesky Matrix')

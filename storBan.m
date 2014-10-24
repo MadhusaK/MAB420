@@ -6,34 +6,28 @@ function [banMatrix,cholBan,sol] = storBan(coMatrix,b)
 % 4. Computes solution from banded cholesky
 
 % Paramters
-sol = b';
 n = 33;
 
 %% RCM Node Re-ordering
-permRCM = symrcm(coMatrix);
+permRCM = symrcm(coMatrix); %RCM permutation
 
 rcmReOrder = triu(coMatrix(permRCM,permRCM)); % Reordered coefficient matrix
-% rcmReOrder = triu(coMatrix); % Reordered coefficient matrix
 sol = b(permRCM); % Reordered b vector
 
-figure(1)
-spy(rcmReOrder)
 
 %% Banded Storage
 
 banMatrix = zeros(7,33);
 
 for i = 1:7
-    banMatrix(8-i,i:33) = diag(rcmReOrder,i-1)'
+    banMatrix(8-i,i:33) = diag(rcmReOrder,i-1)';
 end
-
-figure(2)
-spy(banMatrix)
 
 %% Cholesky Factorization
 
 cholBan = banMatrix;
 
+tic;
 for i = 1:33
     
     if i < 27
@@ -46,7 +40,7 @@ for i = 1:33
     
     for j = jRange     
         if i ~= 1 && j ~= 1
-            cholBan(j,i+max(jRange)-j) = cholBan(j,i+max(jRange)-j) - dot(cholBan(1:(max(jRange)-1),i),[zeros(max(jRange)-j,1);cholBan(1:j-1,i+max(jRange)-j)])
+            cholBan(j,i+max(jRange)-j) = cholBan(j,i+max(jRange)-j) - dot(cholBan(1:(max(jRange)-1),i),[zeros(max(jRange)-j,1);cholBan(1:j-1,i+max(jRange)-j)]);
         end
         
         if j == 7
@@ -56,18 +50,17 @@ for i = 1:33
         cholBan(j,i+max(jRange)-j) = cholBan(j,i+max(jRange)-j)/cholDiv;
     end
 end
-
+time = toc;
+fprintf('Band Storage - Cholesky:               %10.10fms \n', time)
 %% Forward Subsitution
+tic;
 for i = 1:n
     
     if i ~= 1 && i <= 7
-        i
         sol(i) = sol(i) - dot(sol(1:(i-1)),cholBan(1:(i-1),i));
     end
     
     if i ~= 1 && i > 7
-        sol((i-6):(i-1))
-        cholBan(7:-1:2)
         sol(i) = sol(i) - dot(sol((i-6):(i-1)),cholBan(1:6,i));
 
     end
@@ -94,8 +87,13 @@ for i = n:-1:1
         end
     end
         
-    sol(i) = sol(i)/cholBan(7,i)
+    sol(i) = sol(i)/cholBan(7,i);
 end
 
 sol(permRCM) = sol;
+time = toc;
+fprintf('Band Storage - Solution Runtime:     %10.10fms \n', time)
 
+figure
+spy(banMatrix)
+title('Band Storage')

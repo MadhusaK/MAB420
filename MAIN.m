@@ -1,12 +1,13 @@
 % Main Script
+close all
+[coMatrix,b] = genAB(); % Generate coefficient and b matrix
 
-[coMatrix,b] = genAB();
+% Uncomment whichever code you wish to run
 
-% testMatrix= full(gallery('poisson',20));
-% b = zeros(20,1);
-
-[solFull,cholFac,cholFac2] = storFull(coMatrix,b);
-% [pacVector,cholPac,solPac] = storPac(coMatrix,b);
-[banMatrix,cholBan,solBan] = storBan(coMatrix,b);
-% [sparMatrix,cholSpar] = storSpar(coMatrix);
+[solFull,cholFac,cholFac2] = storFull(coMatrix,b);    % Full Packed Solution
+genVisual(coMatrix,b,solFull)                         % Visualisation
+reRCMAMD(coMatrix,cholFac);                           % Node Reordering
+[pacVector,cholPac,solPac] = storPac(coMatrix,b);     % Packed Solution
+[banMatrix,cholBan,solBan] = storBan(coMatrix,b);     % Band Solution
+[sparMatrix,cholSpar,solSpar] = storSpar(coMatrix,b); % Sparse Solution
 

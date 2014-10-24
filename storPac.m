@@ -21,9 +21,10 @@ end
 f_nCo = @(i,j) i+j*(j-1)/2;
 f_nRo = @(i,j) j+i*(i-1)/2;
 
-%% Cholesky Factorization]
+%% Cholesky Factorization
 cholPac = pacVector;
-    
+ 
+tic;
 for i = 1:n
     cholDiv = sqrt(cholPac(f_nCo(i,i)));
     for j = i:n
@@ -35,14 +36,16 @@ for i = 1:n
             cholDiv = sqrt(cholPac(f_nCo(i,i)));
         end
         
-        cholPac(f_nCo(i,j)) = cholPac(f_nCo(i,j))/cholDiv
+        cholPac(f_nCo(i,j)) = cholPac(f_nCo(i,j))/cholDiv;
     end
 end
-
+time = toc;
+fprintf('Packed Storage - Cholesky:             %10.10fms \n', time)
 %% Forward Substitution
+tic;
 for i = 1:n
     for j = 1:i-1
-        sol(i) = sol(i) - cholPac(f_nCo(j,i))*sol(j)
+        sol(i) = sol(i) - cholPac(f_nCo(j,i))*sol(j);
     end
 
     sol(i) = sol(i)/cholPac(f_nCo(i,i));
@@ -51,7 +54,7 @@ end
 %% Backwards Substitution
 for i = n:-1:1
     for j = i+1:n
-        sol(i) = sol(i) - cholPac(f_nCo(i,j))*sol(j)
+        sol(i) = sol(i) - cholPac(f_nCo(i,j))*sol(j);
     end
     
     if isempty(j)
@@ -60,4 +63,9 @@ for i = n:-1:1
     
     sol(i) = sol(i)/cholPac(f_nCo(i,i));
 end
-        
+time = toc;
+fprintf('Packed Storage - Solution Runtime:     %10.10fms \n', time)
+
+figure
+spy(pacVector')
+title('Packed Storage Vector')

@@ -13,11 +13,12 @@ Aamd = coMatrix(AMD,AMD);
 cholRCM = chol(Arcm);
 cholAMD = chol(Aamd);
 
-subplot(2,3,1), spy(coMatrix);
-subplot(2,3,2), spy(Arcm);
-subplot(2,3,3), spy(Aamd);
-subplot(2,3,4), spy(cholFull);
-subplot(2,3,5), spy(cholRCM);
-subplot(2,3,6), spy(cholAMD);
+figure
+subplot(2,3,1), spy(coMatrix), title('Coefficient Matrix');
+subplot(2,3,2), spy(Arcm); title('RCM Node reodering');
+subplot(2,3,3), spy(Aamd); title('AMD Node reodering');
+subplot(2,3,4), spy(cholFull); title('Cholesky Full Packed');
+subplot(2,3,5), spy(cholRCM); title('Cholesky RCM');
+subplot(2,3,6), spy(cholAMD); title('Cholesky AMD');
 
 
